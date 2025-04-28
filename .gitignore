@@ -1,0 +1,7 @@
+settings/xtreamly-ai-vertexai.json
+settings/xtreamly-ai-cc418ba37b0c.json
+settings/gcp-mail.json
+data
+data/*
+.env
+modules.txt

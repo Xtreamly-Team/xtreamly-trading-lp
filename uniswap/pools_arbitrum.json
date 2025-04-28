@@ -1,0 +1,50 @@
+[
+    {
+        "type": "ETH / USDC",
+        "fee": 5,
+        "pool": "0xC6962004f452bE9203591991D15f6b388e09E8D0",
+        "version": "v3"
+    },
+    {
+        "type": "WBTC / ETH",
+        "fee": 5,
+        "pool": "0x2f5e87C9312fa29aed5c179E456625D79015299c",
+        "version": "v3"
+    },
+    {
+        "type": "ETH / USDT",
+        "fee": 5,
+        "pool": "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
+        "version": "v3"
+    },
+    {
+        "type": "WBTC / USDT",
+        "fee": 5,
+        "pool": "0x5969EFddE3cF5C0D9a88aE51E47d721096A97203",
+        "version": "v3"
+    },
+    {
+        "type": "WBTC / USDT",
+        "fee": 5,
+        "pool": "0x5969EFddE3cF5C0D9a88aE51E47d721096A97203",
+        "version": "v3"
+    },    
+    {
+        "type": "WBTC / USDC",
+        "fee": 30,
+        "pool": "0x70bf44c3a9b6b047bf60e5a05968225dbf3d6a5b9e8a95a73727e48921e889c1",
+        "version": "v4"
+    },
+    {
+        "type": "WBTC / ETH",
+        "fee": 30,
+        "pool": "0x149e36E72726e0BceA5c59d40df2c43F60f5A22D",
+        "version": "v3"
+    },
+    {
+        "type": "ETH / USDC",
+        "fee": 30,
+        "pool": "0xc473e2aEE3441BF9240Be85eb122aBB059A3B57c",
+        "version": "v3"
+    }
+]
