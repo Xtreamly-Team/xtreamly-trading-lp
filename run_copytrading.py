@@ -72,14 +72,14 @@ owners = [
 # time_now = datetime.strptime(f'2025-04-28 18:00:00+0000', '%Y-%m-%d %H:%M:%S%z').astimezone(pytz.UTC)
 # =============================================================================
 
-def _run_copytrading(freq = 1440*7):
+def _run_copytrading(freq):
     time_now = datetime.now(pytz.UTC)
     
     df_opn = df_cls = pd.DataFrame()
     # =============================================================================
     # Time
     # =============================================================================
-    date_fr = (time_now - timedelta(minutes=)).strftime('%Y-%m-%d %H:%M:%S')
+    date_fr = (time_now - timedelta(minutes=freq)).strftime('%Y-%m-%d %H:%M:%S')
     date_to = time_now.strftime('%Y-%m-%d %H:%M:%S')
 
     timestamp_fr = int(pd.to_datetime(date_fr).timestamp())
