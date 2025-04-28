@@ -47,9 +47,10 @@ def home(): return 'Dalongo AI'
 
 @app.get("/copytrading/")
 def _function(
-        emails = "pablo.masior@gmail.com;p.masior@gmail.com" 
+        emails = "pablo.masior@gmail.com;p.masior@gmail.com",
+        freq = 1440*7
     ):
-    df_opn, df_cls = _run_copytrading()
+    df_opn, df_cls = _run_copytrading(freq)
     if len(df_opn) or len(df_cls):
         email_receiver_list = emails.split(';')
         success = _send_user_email(email_receiver_list, df_opn, df_cls)
