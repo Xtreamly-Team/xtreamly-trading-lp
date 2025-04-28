@@ -6,6 +6,7 @@ from fastapi.responses import StreamingResponse
 import os
 import json
 from run_copytrading import _run_copytrading
+from settings.gmail import _send_user_email
 
 app = FastAPI(
     title="🕵🏻‍♂️ Xtreamly Trading",
@@ -46,11 +47,14 @@ def home(): return 'Dalongo AI'
 
 @app.get("/copytrading/")
 def _function(
-        name = "Uniswap" 
+        emails = "pablo.masior@gmail.com;p.masior@gmail.com" 
     ):
     df_opn, df_cls = _run_copytrading()
+    if len(df_opn) or len(df_cls):
+        email_receiver_list = emails.split(';')
+        success = _send_user_email(email_receiver_list, df_opn, df_cls)
     return JSONResponse(content={
-        'success': True,
+        'success': success,
         'open': json.loads(df_opn.to_json(orient='records')),
         'close': json.loads(df_cls.to_json(orient='records')),
     })

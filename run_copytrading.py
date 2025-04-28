@@ -74,15 +74,14 @@ owners = [
 
 def _run_copytrading():
     time_now = datetime.now(pytz.UTC)
+    
+    df_opn = df_cls = pd.DataFrame()
     # =============================================================================
     # Time
     # =============================================================================
-    date_fr = (time_now - timedelta(minutes=1440*30)).strftime('%Y-%m-%d %H:%M:%S')
+    date_fr = (time_now - timedelta(minutes=1440*7)).strftime('%Y-%m-%d %H:%M:%S')
     date_to = time_now.strftime('%Y-%m-%d %H:%M:%S')
-    
-    time_fr = (time_now - timedelta(minutes=1440)).replace(tzinfo=None)
-    time_to = time_now.fromisoformat(date_to).replace(tzinfo=None)
-    
+
     timestamp_fr = int(pd.to_datetime(date_fr).timestamp())
     timestamp_to = int(pd.to_datetime(date_to).timestamp())
     
@@ -111,91 +110,88 @@ def _run_copytrading():
     # =============================================================================
     # Logs
     # =============================================================================
-    Logs = []
-    names_tbl_logs = names_tbl
-    for name_tbl in names_tbl_logs:
-        df_temp = data[name_tbl]
-        if df_temp.shape[0]: Logs += [df_temp]
-    df_log = pd.concat(Logs)
-    df_log['owner'] = df_log['owner'].str.lower()
-    df_log['_time'] = pd.to_datetime(df_log.pop('timestamp'), unit='s')
-    df_log = df_log[df_log['owner'].str.lower().isin([o.lower() for o in owners])]
-    cols_log = [
-        '_time',
-        #'tx_hash',
-        'owner',
-        'position_id',
-        'type',
-        'price',
-        'liquidity',
-        'amount0',
-        'amount1',
-        'deposited_token0',
-        'withdrawn_token0',
-        #'collected_fees_token0',
-        'deposited_token1',
-        'withdrawn_token1',
-        #'collected_fees_token1',
-        ]
-    df_log = df_log[cols_log].sort_values(by=['owner', 'position_id', '_time', 'type']).reset_index(drop=True)
-    df_log['position_nr'] = df_log['position_id'].replace({p: i for i,p in enumerate(df_log['position_id'].unique())})
-    df_log['position_nr'] = df_log['position_nr'].astype(int)
-    #df_log.pop('position_nr')
-    df_log['owner'] = [f"https://revert.finance/#/account/{o}" for o in df_log['owner']]
-    df_log = df_log.rename(columns={'type': 'action'})
-    df_log_last = df_log.groupby(['owner', 'position_id'], as_index=False).last()
-    df_log_last = df_log_last[['_time', 'owner', 'position_id','action']]
-    
-    # =============================================================================
-    # Pools
-    # =============================================================================
-    data_pools = []
-    for chain in ['etherum', 'arbitrum']:
-        with open(os.path.join('uniswap', f'pools_{chain}.json'), 'r') as f:  pools = json.load(f)
-        data_pools += [{**p, 'chain': chain} for p in pools]
-    df_pools = pd.DataFrame(data_pools)    
-    df_pools['pool'] = df_pools['pool'].str.lower()
-    
-    # =============================================================================
-    # Positions
-    # =============================================================================
-    position_ids = "','".join(df_log['position_id'].unique())
-    position_ids = f"('{position_ids}')"
-    sql_positions = f"""
-    SELECT * 
-    FROM `xtreamly-ai.xtreamly_raw.revert_positions`
-    WHERE id in {position_ids}
-    """
-    df_positions = client_bq.query(sql_positions).result().to_dataframe()
-    print(f'loaded position {len(df_positions)}')
-    
-    df_pos = df_positions.copy()
-    df_pos['og_owner'] = df_pos['og_owner'].str.lower()
-    df_pos['pool'] = df_pos['pool'].str.lower()
-    df_pos['_time'] = pd.to_datetime(df_pos['now_ts'], unit='s')
-    df_pos['to_time'] = pd.to_datetime(df_pos.pop('to_timestamp'), unit='s')
-    df_pos['fr_time'] = pd.to_datetime(df_pos.pop('from_timestamp'), unit='s')
-    df_pos = df_pos.rename(columns={'id': 'position_id'})
-    df_pos = df_pos.merge(df_pools, on='pool', how='left')
-    df_pos = df_pos[~df_pos['chain'].isna()]
-    df_pos = df_pos[['position_id', 'price_lower', 'price_upper', 'type', 'fee', 'version', 'chain']]
-    
-    # =============================================================================
-    # Actions
-    # =============================================================================
-    df_actions = df_log_last.merge(df_pos, on='position_id', how='left')
-    df_actions = df_actions[~df_actions['chain'].isna()]
-    df_opn = df_actions[df_actions['action'] == 'deposits'].copy()
-    df_cls = df_actions[df_actions['action'] == 'withdrawals'].copy()
+    df_log = pd.concat(data)
+    if len(df_log):
+        df_log = pd.concat(data)
+        df_log['owner'] = df_log['owner'].str.lower()
+        df_log['_time'] = pd.to_datetime(df_log.pop('timestamp'), unit='s')
+        df_log = df_log[df_log['owner'].str.lower().isin([o.lower() for o in owners])]
+        cols_log = [
+            '_time',
+            #'tx_hash',
+            'owner',
+            'position_id',
+            'type',
+            'price',
+            'liquidity',
+            'amount0',
+            'amount1',
+            'deposited_token0',
+            'withdrawn_token0',
+            #'collected_fees_token0',
+            'deposited_token1',
+            'withdrawn_token1',
+            #'collected_fees_token1',
+            ]
+        df_log = df_log[cols_log].sort_values(by=['owner', 'position_id', '_time', 'type']).reset_index(drop=True)
+        df_log['position_nr'] = df_log['position_id'].replace({p: i for i,p in enumerate(df_log['position_id'].unique())})
+        df_log['position_nr'] = df_log['position_nr'].astype(int)
+        #df_log.pop('position_nr')
+        df_log['owner'] = [f"https://revert.finance/#/account/{o}" for o in df_log['owner']]
+        df_log = df_log.rename(columns={'type': 'action'})
+        df_log_last = df_log.groupby(['owner', 'position_id'], as_index=False).last()
+        df_log_last = df_log_last[['_time', 'owner', 'position_id','action']]
+        
+        # =============================================================================
+        # Pools
+        # =============================================================================
+        data_pools = []
+        for chain in ['etherum', 'arbitrum']:
+            with open(os.path.join('uniswap', f'pools_{chain}.json'), 'r') as f:  pools = json.load(f)
+            data_pools += [{**p, 'chain': chain} for p in pools]
+        df_pools = pd.DataFrame(data_pools)    
+        df_pools['pool'] = df_pools['pool'].str.lower()
+        
+        # =============================================================================
+        # Positions
+        # =============================================================================
+        position_ids = "','".join(df_log['position_id'].unique())
+        position_ids = f"('{position_ids}')"
+        sql_positions = f"""
+        SELECT * 
+        FROM `xtreamly-ai.xtreamly_raw.revert_positions`
+        WHERE id in {position_ids}
+        """
+        df_positions = client_bq.query(sql_positions).result().to_dataframe()
+        print(f'loaded position {len(df_positions)}')
+        
+        df_pos = df_positions.copy()
+        df_pos['og_owner'] = df_pos['og_owner'].str.lower()
+        df_pos['pool'] = df_pos['pool'].str.lower()
+        df_pos['_time'] = pd.to_datetime(df_pos['now_ts'], unit='s')
+        df_pos['to_time'] = pd.to_datetime(df_pos.pop('to_timestamp'), unit='s')
+        df_pos['fr_time'] = pd.to_datetime(df_pos.pop('from_timestamp'), unit='s')
+        df_pos = df_pos.rename(columns={'id': 'position_id'})
+        df_pos = df_pos.merge(df_pools, on='pool', how='left')
+        df_pos = df_pos[~df_pos['chain'].isna()]
+        df_pos = df_pos[['position_id', 'price_lower', 'price_upper', 'type', 'fee', 'version', 'chain']]
+        
+        # =============================================================================
+        # Actions
+        # =============================================================================
+        df_actions = df_log_last.merge(df_pos, on='position_id', how='left')
+        df_actions = df_actions[~df_actions['chain'].isna()]
+        df_opn = df_actions[df_actions['action'] == 'deposits'].copy()
+        df_cls = df_actions[df_actions['action'] == 'withdrawals'].copy()
     return df_opn, df_cls
 
 # =============================================================================
 # df_opn, df_cls = _run_copytrading()
-# 
-# df_opn.to_json()
+# =============================================================================
 # =============================================================================
 
-
+# 
+# =============================================================================
 # =============================================================================
 # # =============================================================================
 # # # Pools
