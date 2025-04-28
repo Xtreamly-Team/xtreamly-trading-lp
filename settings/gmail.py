@@ -18,7 +18,6 @@ email_sender = "info@dalongo.com"
 email_pwd = os.environ['GMAIL_KEY'].replace('_', ' ')
 email_receiver = "pablo.masior@gmail.com"
 
-
 def _send_user_email(email_receiver, df_opn, df_cls):
     subj = f"[Copytrading Action Required] Open & Close Position in Uniswap"
     html_table_opn = df_opn.to_html(index=False, border=0, justify="center", classes="dataframe", escape=False)
@@ -45,9 +44,9 @@ def _send_user_email(email_receiver, df_opn, df_cls):
     </style>
   </head>
   <body style="font-family: Arial, sans-serif; line-height: 1.5; background-color: #fff; padding: 10px;">
-    <p>Open the following positions:</p>
+    <p>Open positions (if not opened):</p>
     {html_table_opn}
-    <p>Close the following positions:</p>
+    <p>Close positions (if opened):</p>
     {html_table_cls}
     <p style="margin-top: 20px;">
       <a href="https://app.uniswap.org/positions/create" 
@@ -74,8 +73,10 @@ def _send_user_email(email_receiver, df_opn, df_cls):
 
     return f"✅ Success: Email sent to {email_receiver}"
 
-# Usage
-email_receiver = "pablo.masior@gmail.com"
-_send_user_email(email_receiver, df_opn, df_cls)
+# =============================================================================
+# # Usage
+# email_receiver_list = ['pablo.masior@gmail.com', 'p.masior@gmail.com']
+# _send_user_email(email_receiver_list, df_opn, df_cls)
+# =============================================================================
 
     

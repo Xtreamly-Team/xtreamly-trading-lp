@@ -4,6 +4,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 import os
+import json
+from run_copytrading import _run_copytrading
 
 app = FastAPI(
     title="🕵🏻‍♂️ Xtreamly Trading",
@@ -46,10 +48,11 @@ def home(): return 'Dalongo AI'
 def _function(
         name = "Uniswap" 
     ):
+    df_opn, df_cls = _run_copytrading()
     return JSONResponse(content={
         'success': True,
-        'open': {},
-        'close': {},
+        'open': json.loads(df_opn.to_json(orient='records')),
+        'close': json.loads(df_cls.to_json(orient='records')),
     })
 
 
