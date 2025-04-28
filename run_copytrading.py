@@ -158,24 +158,33 @@ df_log = df_log[cols_log].sort_values(by=['owner', 'position_id', '_time', 'type
 df_log = df_log.merge(df_pos[['position_id', 'type', 'fee', 'version', 'chain']], on='position_id', how='left')
 df_log['position_nr'] = df_log['position_id'].replace({p: i for i,p in enumerate(df_log['position_id'].unique())})
 df_log['position_nr'] = df_log['position_nr'].astype(int)
-df_log.pop('position_nr')
-df_last_logs = df_log.groupby(['owner', 'position_id'], as_index=False).last()
-
+#df_log.pop('position_nr')
+if 'type_x' in df_log.columns:
+    df_log = df_log.rename(columns={'type_x': 'type'})
 
 # =============================================================================
 # Open
 # =============================================================================
-df_opn = df_last_logs[df_last_logs['type_x'] == 'deposits']
+df_opn = df_log.groupby(['owner', 'position_id'], as_index=False).last()
+df_opn = df_opn[df_opn['type'] == 'deposits']
+df_opn = df_opn[['owner', 'position_id', '_time', 'price', 'amount0', 'amount1', 'type', 'fee', 'version', 'chain']]
+df_opn[['amount0', 'amount1']] = df_opn[['amount0', 'amount1']].astype(float).abs()
 
 # send a message 
 # save open to DB
 # print(df_opn)
 
-
 # =============================================================================
 # Close
 # =============================================================================
-df_cls = df_last_logs[df_last_logs['type_x'] != 'deposits']
+df_cls = df_log.groupby(['owner', 'position_id'], as_index=False).last()
+df_cls = df_cls[df_cls['type'] != 'deposits']
+df_cls = df_cls[['owner', 'position_id', '_time', 'price', 'amount0', 'amount1', 'type', 'fee', 'version', 'chain']]
+
+
+
+
+
 
 # save open from DB - filter for
 # print(df_cls)
