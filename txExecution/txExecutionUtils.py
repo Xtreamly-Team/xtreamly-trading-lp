@@ -14,17 +14,31 @@ class MintParams():
         amount1,
         wallet_address
         ):
-        self.token0 = token0_address,
-        self.token1 = token1_address
-        self.fee = 3000
-        self.tickLower = tickLower
-        self.tickUpper = tickUpper
-        self.amount0Desired = amount0
-        self.amount1Desired = amount1
-        self.amount0Min = int(amount0 * 0.995) # 0.5% slippage tolerance 
-        self.amount1Min = int(amount1 * 0.995)
-        self.recipient = wallet_address
-        self.deadline = int(time.time()) + 600  # 10 minutes from now
+        self.token0 = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(token0_address)
+        self.token1 = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(token1_address)
+        self.fee = GLOBAL_ARBITRUM_PROVIDER.to_int(fee)
+        self.tickLower = GLOBAL_ARBITRUM_PROVIDER.to_int(tickLower)
+        self.tickUpper = GLOBAL_ARBITRUM_PROVIDER.to_int(tickUpper)
+        self.amount0Desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0)
+        self.amount1Desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1)
+        self.amount0Min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0 * 0.995) # 0.5% slippage tolerance 
+        self.amount1Min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1 * 0.995)
+        self.recipient = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(wallet_address)
+        self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(time.time()) + 600  # 10 minutes from now
+
+        self.data = [
+            self.token0, 
+            self.token1, 
+            self.fee, 
+            self.tickLower, 
+            self.tickUpper, 
+            self.amount0Desired, 
+            self.amount1Desired, 
+            self.amount0Min, 
+            self.recipient, 
+            self.deadline
+            ]
+
 
 class ReduceParams():
     def __init__(self,
@@ -32,12 +46,21 @@ class ReduceParams():
         liquidity,
         amount0_min,
         amount1_min,
-        deadline):
-        self.token_id = token_id
-        self.liquidity = liquidity
-        self.amount0_min = amount0_min
-        self.amount1_min = amount1_min
-        self.deadline = deadline
+        deadline
+        ):
+        self.token_id = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(token_id)
+        self.liquidity = GLOBAL_ARBITRUM_PROVIDER.to_int(liquidity)
+        self.amount0_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0_min)
+        self.amount1_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1_min)
+        self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(deadline)
+
+        self.data = [
+            self.token_id, 
+            self.liquidity, 
+            self.amount0_min, 
+            self.amount1_min, 
+            self.deadline
+            ]
 
 class IncreaseParams():
     def __init__(self,
@@ -47,12 +70,21 @@ class IncreaseParams():
         amount0_min,
         amount1_min,
         deadline):
-        self.token_id = token_id
-        self.amount0_desired = amount0_desired
-        self.amount1_desired = amount1_desired
-        self.amount0_min = amount0_min
-        self.amount1_min = amount1_min
-        self.deadline = deadline
+        self.token_id = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(token_id)
+        self.amount0_desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0_desired)
+        self.amount1_desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1_desired)
+        self.amount0_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0_min)
+        self.amount1_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1_min)
+        self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(deadline)
+
+        self.data = [
+        self.token_id, 
+        self.amount0_desired, 
+        self.amount1_desired,
+        self.amount0_min, 
+        self.amount1_min, 
+        self.deadline
+        ]
 
 
 def build_and_send_tx(tx_data: dict):
@@ -77,7 +109,6 @@ def build_and_send_tx(tx_data: dict):
             logger.error(f'txExecutionUtils.py - Error while sending transaction. Error: {e}', exc_info=True)
             return None
 
-
 def check_tx_success(tx_receipt: TxReceipt) -> bool:
     try:
         time.sleep(0.5)
@@ -89,3 +120,4 @@ def check_tx_success(tx_receipt: TxReceipt) -> bool:
     except Exception as e:
         logger.error(f'txExecutionUtils.py - Error checking for Tx success. Error: {e}', exc_info=True)
         return None  
+
