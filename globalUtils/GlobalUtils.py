@@ -8,32 +8,33 @@ load_dotenv()
 
 ARB_RPC_URL = os.getenv('ARBITRUM_RPC_URL')
 PRIVATE_KEY = os.getenv('PRIV_KEY')
-EXECUTOR_ADDRESS: str = Web3.eth.account.from_key(PRIVATE_KEY).address
 
 GLOBAL_ARBITRUM_PROVIDER = Web3(Web3.HTTPProvider(ARB_RPC_URL))
-WALLET_ADDR = GLOBAL_ARBITRUM_PROVIDER.eth.account.from_key(PRIVATE_KEY).address
+EXECUTOR_ADDRESS = GLOBAL_ARBITRUM_PROVIDER.eth.account.from_key(PRIVATE_KEY).address
 
 NON_FUNGIBLE_POSITION_MANAGER_ADDRESS = '0xc36442b4a4522e871399cd717abdd847ab11fe88'
 WETH_ADDRESS = '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
 WBTC_ADDRESS = '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f'
 USDC_ADDRESS = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831'
 
-with open('xtreamly-trading-lp/globalUtils/ABIs/NonFungiblePositionManager.json', 'r') as f:
+ETH_USDC_3BPS_ADDR = '0xC1A31dC7Bc2e06aA0228D2Ea58dF4F92C3A16998'
+
+with open('xtreamly_trading_lp/globalUtils/ABIs/NonFungiblePositionManager.json', 'r') as f:
     NFPM_abi = json.load(f)
 
-with open('xtreamly-trading-lp/globalUtils/ABIs/WETH.json', 'r') as f:
+with open('xtreamly_trading_lp/globalUtils/ABIs/WETH.json', 'r') as f:
     weth_abi = json.load(f)
 
-with open('xtreamly-trading-lp/globalUtils/ABIs/WBTC.json', 'r') as f:
+with open('xtreamly_trading_lp/globalUtils/ABIs/WBTC.json', 'r') as f:
     wbtc_abi = json.load(f)
 
-with open('xtreamly-trading-lp/globalUtils/ABIs/USDC.json', 'r') as f:
+with open('xtreamly_trading_lp/globalUtils/ABIs/USDC.json', 'r') as f:
     usdc_abi = json.load(f)
 
-NFPM_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=NON_FUNGIBLE_POSITION_MANAGER_ADDRESS, abi=NFPM_abi)
-WETH_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=WETH_ADDRESS, abi=weth_abi)
-WBTC_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=WBTC_ADDRESS, abi=wbtc_abi)
-USDC_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=USDC_ADDRESS, abi=usdc_abi)
+NFPM_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(NON_FUNGIBLE_POSITION_MANAGER_ADDRESS), abi=NFPM_abi)
+WETH_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(WETH_ADDRESS), abi=weth_abi)
+WBTC_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(WBTC_ADDRESS), abi=wbtc_abi)
+USDC_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(USDC_ADDRESS), abi=usdc_abi)
 
 
 class Contracts:
