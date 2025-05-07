@@ -1,8 +1,9 @@
 from xtreamly_trading_lp.globalUtils.GlobalUtils import *
 from xtreamly_trading_lp.txExecution.txExecutionUtils import *
 from xtreamly_trading_lp.txExecution.txExecution import *
+from xtreamly_trading_lp.globalUtils.getPriceFromChainlink import *
 
-center_price = 1788
+center_price = get_chainlink_price(CHAINLINK_IDS.eth)
 percent_bound = 3    
 tick_spacing = 60
 tick_lower, tick_upper = get_tick_range(center_price, percent_bound, tick_spacing)
@@ -32,6 +33,9 @@ class Test:
         except Exception as e:
             logger.error(f'TxExecution.t.py - Failed to deploy liquidity. Error: {e}', exc_info=True)
 
-x = Test()
-y = x.provide_liquidity(mint_params)
-print(y)
+print(center_price)
+
+
+# x = Test()
+# y = x.provide_liquidity(mint_params)
+# print(y)
