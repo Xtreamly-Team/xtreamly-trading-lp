@@ -12,16 +12,23 @@ class TxExecution():
                 raise Exception
             print('made it to here 2')
 
+            approved_weth: bool = self.ensure_approved_weth(mint_params.amount0Desired)
+            if not approved_weth:
+                raise Exception
+            print('made it to here 3')
+
             enough_USDC: bool = self.ensure_approved_usdc(mint_params.amount1Desired)
             if not enough_USDC:
                 raise Exception
-            print('made it to here 3')
+            print('made it to here 4')
             
             tx = CONTRACTS.NFPM.functions.mint(mint_params.data).build_transaction({
                 'from': EXECUTOR_ADDRESS,
                 'nonce': GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(account=EXECUTOR_ADDRESS),
                 'gas': 0
             })
+
+            print(tx)
 
             tx_receipt = build_and_send_tx(tx)
             tx_success = check_tx_success(tx_receipt)
@@ -109,7 +116,8 @@ class TxExecution():
             eth_balance = GLOBAL_ARBITRUM_PROVIDER.eth.get_balance(EXECUTOR_ADDRESS)
             print(weth_balance, eth_balance)
 
-            if token0 == WETH_ADDRESS:
+            if token0 == GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(WETH_ADDRESS):
+                print('case 1 hit')
                 required_amount = amount0_desired
                 if weth_balance < required_amount:
                     logger.info(f'TxExecution.py - Not enough WETH for token0: have {weth_balance}, need {required_amount}')
@@ -121,7 +129,8 @@ class TxExecution():
                         logger.error('TxExecution.py - Not enough ETH to wrap the required WETH for token0.', exc_info=True)
                         return False
 
-            if token1 == WETH_ADDRESS:
+            if token1 == GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(WETH_ADDRESS):
+                print('case 2 hit')
                 required_amount = amount1_desired
                 if weth_balance < required_amount:
                     logger.info(f'TxExecution.py - Not enough WETH for token1: have {weth_balance}, need {required_amount}')
@@ -138,7 +147,44 @@ class TxExecution():
             logger.error(f'TxExecution.py - Failed while checking if sufficient WETH for trade. Error: {e}', exc_info=True)
             return False
 
-    def ensure_approved_usdc(self, required_amount: int):
+    def ensure_approved_weth(self, required_amount: int) -> bool:
+        try:
+            spender = CONTRACTS.NFPM.address
+            weth_contract = CONTRACTS.weth
+
+            current_allowance = weth_contract.functions.allowance(
+                EXECUTOR_ADDRESS,
+                spender
+            ).call()
+
+            logger.info(f"Current WETH allowance for spender {spender}: {current_allowance}")
+
+            if current_allowance >= required_amount:
+                return True
+
+            logger.info(f"Approving WETH: {required_amount} to spender {spender}")
+
+            tx = weth_contract.functions.approve(
+                spender,
+                required_amount
+            ).build_transaction({
+                'from': EXECUTOR_ADDRESS,
+                'nonce': GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(account=EXECUTOR_ADDRESS),
+                'gas': 0  
+            })
+
+            tx_receipt = build_and_send_tx(tx)
+            tx_success = check_tx_success(tx_receipt)
+            if not tx_success:
+                raise Exception("WETH approval transaction failed")
+
+            return True
+
+        except Exception as e:
+            logger.error(f"ensure_approved_weth() - Error ensuring approval: {e}", exc_info=True)
+            return None
+
+    def ensure_approved_usdc(self, required_amount: int) -> bool:
         try:
             current_allowance = CONTRACTS.usdc.functions.allowance(
                 EXECUTOR_ADDRESS,

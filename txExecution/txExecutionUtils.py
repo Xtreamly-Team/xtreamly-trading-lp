@@ -60,8 +60,8 @@ class MintParams():
         self.tickUpper = GLOBAL_ARBITRUM_PROVIDER.to_int(tickUpper)
         self.amount0Desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0)
         self.amount1Desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1)
-        self.amount0Min = GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount0 * 0.995)) # 0.5% slippage tolerance 
-        self.amount1Min = GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount1 * 0.995))
+        self.amount0Min = GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount0 * 0.97)) # 0.1% slippage tolerance 
+        self.amount1Min = GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount1 * 0.97))
         self.recipient = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(wallet_address)
         self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(int(time.time()) + 600)  # 10 minutes from now
 

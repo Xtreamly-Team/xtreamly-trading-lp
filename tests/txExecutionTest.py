@@ -8,7 +8,8 @@ percent_bound = 3
 tick_spacing = 60
 tick_lower, tick_upper = get_tick_range(center_price, percent_bound, tick_spacing)
 amount_usdc = 8 * (10 ** 6)
-amount_eth = 0.004 * (10 ** 18)
+amount_eth = 8 / center_price * (10 ** 18)
+print(amount_usdc, amount_eth)
 
 mint_params = MintParams(
     WETH_ADDRESS,
@@ -36,6 +37,6 @@ class Test:
 print(center_price)
 
 
-# x = Test()
-# y = x.provide_liquidity(mint_params)
-# print(y)
+x = Test()
+y = x.provide_liquidity(mint_params)
+print(y)
