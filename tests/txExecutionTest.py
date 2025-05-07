@@ -19,6 +19,7 @@ mint_params = MintParams(
     int(amount_usdc),
     EXECUTOR_ADDRESS
 )
+
 class Test:
     def __init__(self):
         self.txExecutor = TxExecution()
