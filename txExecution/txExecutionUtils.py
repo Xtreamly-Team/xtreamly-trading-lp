@@ -60,8 +60,8 @@ class MintParams():
         self.tickUpper = GLOBAL_ARBITRUM_PROVIDER.to_int(tickUpper)
         self.amount0Desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0)
         self.amount1Desired = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1)
-        self.amount0Min = GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount0 * 0.97)) # 0.1% slippage tolerance 
-        self.amount1Min = GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount1 * 0.97))
+        self.amount0Min = 0 # GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount0 * 1)) # 0.1% slippage tolerance 
+        self.amount1Min = 0 # GLOBAL_ARBITRUM_PROVIDER.to_int(int(amount1 * 1))
         self.recipient = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(wallet_address)
         self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(int(time.time()) + 600)  # 10 minutes from now
 
@@ -86,13 +86,12 @@ class ReduceParams():
         liquidity,
         amount0_min,
         amount1_min,
-        deadline
         ):
-        self.token_id = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(token_id)
+        self.token_id = GLOBAL_ARBITRUM_PROVIDER.to_int(token_id)
         self.liquidity = GLOBAL_ARBITRUM_PROVIDER.to_int(liquidity)
         self.amount0_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0_min)
         self.amount1_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1_min)
-        self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(deadline)
+        self.deadline = GLOBAL_ARBITRUM_PROVIDER.to_int(int(time.time()) + 600)
 
         self.data = (
             self.token_id, 
@@ -101,6 +100,26 @@ class ReduceParams():
             self.amount1_min, 
             self.deadline
         )
+
+class CollectParams():
+    def __init__(self,
+        token_id,
+        recipient,
+        amount0_min,
+        amount1_min
+        ):
+        self.token_id = GLOBAL_ARBITRUM_PROVIDER.to_int(token_id)
+        self.recipient = GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(recipient)
+        self.amount0_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount0_min)
+        self.amount1_min = GLOBAL_ARBITRUM_PROVIDER.to_int(amount1_min)
+
+        self.data = (
+            self.token_id, 
+            self.recipient, 
+            self.amount0_min, 
+            self.amount1_min, 
+        )
+
 
 class IncreaseParams():
     def __init__(self,

@@ -22,6 +22,20 @@ mint_params = MintParams(
     EXECUTOR_ADDRESS
 )
 
+reduce_params = ReduceParams( 
+    4436099,
+    5975938846671457354,
+    4031400000000000,
+    0
+)
+
+collect_params = CollectParams(
+    4436099,
+    EXECUTOR_ADDRESS,
+    2**128 - 1,
+    2**128 - 1
+)
+
 class Test:
     def __init__(self):
         self.txExecutor = TxExecution()
@@ -38,5 +52,5 @@ print(center_price)
 
 
 x = Test()
-y = x.provide_liquidity(mint_params)
+y = x.txExecutor.collect_removed_liquidity(collect_params)
 print(y)

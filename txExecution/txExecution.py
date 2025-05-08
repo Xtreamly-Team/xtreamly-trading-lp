@@ -10,17 +10,14 @@ class TxExecution():
             enough_WETH: bool = self.ensure_wrapped_eth(mint_params)
             if not enough_WETH:
                 raise Exception
-            print('made it to here 2')
 
             approved_weth: bool = self.ensure_approved_weth(mint_params.amount0Desired)
             if not approved_weth:
                 raise Exception
-            print('made it to here 3')
 
             enough_USDC: bool = self.ensure_approved_usdc(mint_params.amount1Desired)
             if not enough_USDC:
                 raise Exception
-            print('made it to here 4')
             
             tx = CONTRACTS.NFPM.functions.mint(mint_params.data).build_transaction({
                 'from': EXECUTOR_ADDRESS,
@@ -32,11 +29,8 @@ class TxExecution():
 
             tx_receipt = build_and_send_tx(tx)
             tx_success = check_tx_success(tx_receipt)
-        
-            if not tx_success:
-                raise Exception
 
-            return tx_receipt
+            return tx_success
 
         except Exception as e:
             logger.error(f'txExecution.py - Error while delpoying liquidity. Error: {e}', exc_info=True)
@@ -59,6 +53,25 @@ class TxExecution():
 
         except Exception as e:
             logger.error(f'txExecution.py - Error while reducing liquidity. Error: {e}', exc_info=True)
+            return None
+
+    def collect_removed_liquidity(self, collect_params: CollectParams):
+        try:
+            tx = CONTRACTS.NFPM.functions.collect(collect_params.data).build_transaction({
+            'from': EXECUTOR_ADDRESS,
+            'nonce': GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(EXECUTOR_ADDRESS),
+            'gas': 0
+            })
+
+            tx_receipt = build_and_send_tx(tx)
+            tx_success = check_tx_success(tx_receipt)
+            if not tx_success:
+                raise Exception
+
+            return tx_success
+        
+        except Exception as e:
+            logger.error(f'txExecution.py - Error while collecting liquidity. Error: {e}', exc_info=True)
             return None
 
     def increase_liquidity(self, increase_params: IncreaseParams):
@@ -227,3 +240,16 @@ class TxExecution():
             logger.error(f'txExecution.py - Error approving USDC. Error: {e}', exc_info=True)
             return None
 
+    def get_liquidity(self, id: int):
+        try:
+            position = CONTRACTS.NFPM.functions.positions(id).call()
+            liquidity_to_remove = position[7] 
+
+            return liquidity_to_remove
+        except Exception as e:
+            logger.error(f'txExecution.py - Error approving USDC. Error: {e}', exc_info=True)
+            return None
+
+x = TxExecution()
+y = x.get_liquidity(4436099)
+print(y)
