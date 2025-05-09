@@ -4,6 +4,7 @@ import time
 from web3.types import TxReceipt
 from uniswappy import *
 import math
+import requests
 
 
 fee = UniV3Utils.FeeAmount.MEDIUM
@@ -20,26 +21,28 @@ exchg_data = UniswapExchangeData(tkn0 = ETH, tkn1 = USDC, symbol="LP",
                                    tick_spacing = tick_spacing, 
                                    fee = fee)
 
-def get_tick_range(center_price: float, percent_bound: int, tick_spacing: int) -> tuple:
+def get_tick_range_from_current_tick(current_tick: int, percent_bound: int, tick_spacing: int) -> tuple:
     if percent_bound <= 0:
         raise ValueError("percent_bound must be greater than 0")
 
-    lower_price = center_price * (1 - percent_bound / 100)
-    upper_price = center_price * (1 + percent_bound / 100)
+    # Approximate number of ticks corresponding to ±percent_bound
+    ticks_per_1_percent = int(round(math.log(1.01) / math.log(1.0001)))
+    bound_in_ticks = percent_bound * ticks_per_1_percent
 
-    def price_to_tick(price: float) -> int:
-        return int(round(math.log(price) / math.log(1.0001)))
+    # Calculate raw bounds
+    tick_lower = current_tick - bound_in_ticks
+    tick_upper = current_tick + bound_in_ticks
 
-    tick_lower = price_to_tick(lower_price)
-    tick_upper = price_to_tick(upper_price)
-
+    # Align both to tick spacing
     def align_tick(tick: int, spacing: int) -> int:
-        return tick - (tick % spacing)
+        aligned = tick - (tick % spacing)
+        return aligned
 
     tick_lower_aligned = align_tick(tick_lower, tick_spacing)
     tick_upper_aligned = align_tick(tick_upper, tick_spacing)
 
-    return tick_lower_aligned, tick_upper_aligned
+    return int(tick_lower_aligned), int(tick_upper_aligned)
+
 
 
 class MintParams():
@@ -120,7 +123,6 @@ class CollectParams():
             self.amount1_min, 
         )
 
-
 class IncreaseParams():
     def __init__(self,
         token_id,
@@ -144,6 +146,82 @@ class IncreaseParams():
         self.amount1_min, 
         self.deadline
         )
+
+class QuoteDetails():
+    def __init__(
+        self,
+        sell_token: str,
+        buy_token: str,
+        sell_amount: str,
+        ):
+        self.buy_token = buy_token
+        self.sell_token = sell_token
+        self.sell_amount = sell_amount
+
+
+class ZeroExAPIResponse():
+    def __init__(
+        self,
+        spender: str,
+        swap_amount: float,
+        tx_data: str
+        ):
+        self.spender = spender
+        self.swap_amount = swap_amount
+        self.tx_data = tx_data
+
+def get_0x_api_quote(quote_details: QuoteDetails) -> ZeroExAPIResponse:
+    try:
+        api_key = os.getenv('0xAPI_KEY')
+
+        price_params = {
+            "chainId": 42161,  
+            "sellToken": quote_details.sell_token,
+            "buyToken": quote_details.buy_token,
+            "sellAmount": quote_details.sell_amount,
+            "taker": EXECUTOR_ADDRESS
+        }
+
+        headers = {
+            "0x-api-key": api_key,
+            "0x-version": "v2",
+            }
+
+        response = requests.get("https://api.0x.org/swap/allowance-holder/quote?", params=price_params, headers=headers)
+        data = json.loads(response.text)
+
+        spender = data.get("transaction", {}).get("to", None)
+        transaction_data = data.get("transaction", {}).get("data", None)
+
+        return_data = ZeroExAPIResponse(spender=spender, swap_amount=quote_details.sell_amount, tx_data=transaction_data)
+
+        return return_data
+
+    except Exception as e:
+        logger.error(f'ContangoUtils.py - Failed to fetch 0x API quote. Error: {e}', exc_info=True)
+        return None
+
+def build_0x_transaction(response: ZeroExAPIResponse) -> dict:
+    try:
+        nonce = GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(EXECUTOR_ADDRESS)
+
+        tx = {
+            'from': EXECUTOR_ADDRESS,
+            'to': GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(response.spender),
+            'data': response.tx_data,
+            'value': 0, 
+            'gas': 0,
+            'nonce': nonce,
+            'chainId': 42161
+        }
+
+        
+
+        return tx
+
+    except Exception as e:
+        logger.error(f"Error building 0x transaction: {e}", exc_info=True)
+        return None
 
 
 def build_and_send_tx(tx_data: dict):

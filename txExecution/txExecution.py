@@ -97,6 +97,31 @@ class TxExecution():
             logger.error(f'txExecution.py - Error while adding liquidity to position. Error: {e}', exc_info=True)
             return None
 
+    def build_0x_transaction(response: ZeroExAPIResponse) -> dict:
+        try:
+            nonce = GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(EXECUTOR_ADDRESS)
+
+            tx = {
+                'from': EXECUTOR_ADDRESS,
+                'to': GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(response.spender),
+                'data': response.tx_data,
+                'value': 0, 
+                'gas': 0,
+                'nonce': nonce,
+                'chainId': 42161
+            }
+
+            tx_receipt = build_and_send_tx(tx)
+            tx_success = check_tx_success(tx_receipt)
+            if not tx_success:
+                raise Exception
+
+            return tx_receipt
+        
+        except Exception as e:
+            logger.error(f'txExecution.py - Error building 0x transaction. Error: {e}', exc_info=True)
+            return None
+
     def wrap_eth(self, amount: int):
         try:
             tx = CONTRACTS.weth.functions.deposit().build_transaction({
@@ -250,6 +275,7 @@ class TxExecution():
             logger.error(f'txExecution.py - Error approving USDC. Error: {e}', exc_info=True)
             return None
 
-x = TxExecution()
-y = x.get_liquidity(4436099)
-print(y)
+# x = TxExecution()
+# y = x.remove_liquidity(4443013)
+# z = x.collect_removed_liquidity()
+# print(y)

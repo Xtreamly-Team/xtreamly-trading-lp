@@ -37,6 +37,8 @@ class PoolContracts():
         self.WBTC_USDC = WBTC_USDC_POOL
         self.WBTC_USDT = WBTC_USDT_POOL
 
+POOL_CONTRACTS = PoolContracts()
+
 def get_decimals_for_pool(pool_contract) -> tuple:
     try:
         pool_address = pool_contract.address.lower()
@@ -57,8 +59,9 @@ def get_decimals_for_pool(pool_contract) -> tuple:
         return (None, None)
 
 
-def get_price_from_pool(pool_contract, token0_decimals: int, token1_decimals: int) -> Decimal:
+def get_price_from_pool(pool_contract) -> Decimal:
     try:
+        token0_decimals, token1_decimals = get_decimals_for_pool(pool_contract)
         sqrt_price_x96 = pool_contract.functions.slot0().call()[0]
         sqrt_price_decimal = Decimal(sqrt_price_x96)
         ratio_x96 = sqrt_price_decimal ** 2 / (2 ** 192)
@@ -72,3 +75,14 @@ def get_price_from_pool(pool_contract, token0_decimals: int, token1_decimals: in
         logger.error(f"getPriceFromPool - Error reading price from pool: {e}")
         return None
 
+def get_current_tick(pool_contract) -> Decimal:
+    try:
+        tick = pool_contract.functions.slot0().call()[1]
+        return Decimal(tick)
+
+    except Exception as e:
+        logger.error(f"getPriceFromPool - Error reading price from pool: {e}")
+        return None
+
+y = get_price_from_pool(POOL_CONTRACTS.ETH_USDC)
+print(y)
