@@ -5,3 +5,4 @@ data
 data/*
 .env
 modules.txt
+globalUtils/database/xtreamly-ai-3bdeeea870af-bigquery-read-only.json
