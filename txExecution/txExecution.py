@@ -9,15 +9,18 @@ class TxExecution():
         try:
             enough_WETH: bool = self.ensure_wrapped_eth(mint_params)
             if not enough_WETH:
-                raise Exception
+                time.sleep(1.5)
+                self.ensure_wrapped_eth(mint_params)
 
             approved_weth: bool = self.ensure_approved_weth(mint_params.amount0Desired)
             if not approved_weth:
-                raise Exception
+                time.sleep(1.5)
+                self.ensure_approved_weth(mint_params.amount0Desired)
 
             enough_USDC: bool = self.ensure_approved_usdc(mint_params.amount1Desired)
             if not enough_USDC:
-                raise Exception
+                time.sleep(1.5)
+                self.ensure_approved_usdc(mint_params.amount1Desired)
             
             tx = CONTRACTS.NFPM.functions.mint(mint_params.data).build_transaction({
                 'from': EXECUTOR_ADDRESS,
@@ -29,8 +32,11 @@ class TxExecution():
 
             tx_receipt = build_and_send_tx(tx)
             tx_success = check_tx_success(tx_receipt)
-
+            
             return tx_success
+            # token_id = get_token_id_from_tx_recipt(tx_receipt)
+
+            # return token_id
 
         except Exception as e:
             logger.error(f'txExecution.py - Error while delpoying liquidity. Error: {e}', exc_info=True)

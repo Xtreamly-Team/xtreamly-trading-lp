@@ -5,35 +5,31 @@ from web3.types import TxReceipt
 from uniswappy import *
 import math
 import requests
+from web3._utils.events import get_event_data
 
 
-fee = UniV3Utils.FeeAmount.MEDIUM
-tick_spacing = UniV3Utils.TICK_SPACINGS[fee]
-lwr_tick = UniV3Utils.getMinTick(tick_spacing)
-upr_tick = UniV3Utils.getMaxTick(tick_spacing)
+TRANSFER_EVENT_ABI = {
+    "anonymous": False,
+    "inputs": [
+        {"indexed": True, "name": "from", "type": "address"},
+        {"indexed": True, "name": "to", "type": "address"},
+        {"indexed": True, "name": "tokenId", "type": "uint256"}
+    ],
+    "name": "Transfer",
+    "type": "event"
+}
 
-ETH = ERC20("WETH", WETH_ADDRESS)
-BTC = ERC20("WBTC", WBTC_ADDRESS)
-USDC = ERC20("USDC", USDC_ADDRESS)
-
-exchg_data = UniswapExchangeData(tkn0 = ETH, tkn1 = USDC, symbol="LP", 
-                                   address="0xC1A31dC7Bc2e06aA0228D2Ea58dF4F92C3A16998", version = 'V3', 
-                                   tick_spacing = tick_spacing, 
-                                   fee = fee)
 
 def get_tick_range_from_current_tick(current_tick: int, percent_bound: int, tick_spacing: int) -> tuple:
     if percent_bound <= 0:
         raise ValueError("percent_bound must be greater than 0")
 
-    # Approximate number of ticks corresponding to ±percent_bound
     ticks_per_1_percent = int(round(math.log(1.01) / math.log(1.0001)))
     bound_in_ticks = percent_bound * ticks_per_1_percent
 
-    # Calculate raw bounds
     tick_lower = current_tick - bound_in_ticks
     tick_upper = current_tick + bound_in_ticks
 
-    # Align both to tick spacing
     def align_tick(tick: int, spacing: int) -> int:
         aligned = tick - (tick % spacing)
         return aligned
@@ -201,29 +197,6 @@ def get_0x_api_quote(quote_details: QuoteDetails) -> ZeroExAPIResponse:
         logger.error(f'ContangoUtils.py - Failed to fetch 0x API quote. Error: {e}', exc_info=True)
         return None
 
-def build_0x_transaction(response: ZeroExAPIResponse) -> dict:
-    try:
-        nonce = GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(EXECUTOR_ADDRESS)
-
-        tx = {
-            'from': EXECUTOR_ADDRESS,
-            'to': GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(response.spender),
-            'data': response.tx_data,
-            'value': 0, 
-            'gas': 0,
-            'nonce': nonce,
-            'chainId': 42161
-        }
-
-        
-
-        return tx
-
-    except Exception as e:
-        logger.error(f"Error building 0x transaction: {e}", exc_info=True)
-        return None
-
-
 def build_and_send_tx(tx_data: dict):
     try:
         priv_key = os.getenv('PRIV_KEY')
@@ -245,6 +218,22 @@ def build_and_send_tx(tx_data: dict):
     except Exception as e:
             logger.error(f'txExecutionUtils.py - Error while sending transaction. Error: {e}', exc_info=True)
             return None
+
+def get_token_id_from_tx_recipt(tx_receipt: TxReceipt) -> int:
+    try:
+        transfer_event_abi = TRANSFER_EVENT_ABI
+        transfer_event_signature_hash = GLOBAL_ARBITRUM_PROVIDER.keccak(text="Transfer(address,address,uint256)").hex()
+
+        for log in tx_receipt.logs:
+            if log['address'].lower() == CONTRACTS.NFPM.address.lower() and log['topics'][0].hex() == transfer_event_signature_hash:
+                decoded = get_event_data(GLOBAL_ARBITRUM_PROVIDER.codec, transfer_event_abi, log)
+                token_id = decoded['args']['tokenId']
+                logger.info(f"Deployed new Uniswap V3 LP position with token ID: {token_id}")
+                return token_id
+    
+    except Exception as e:
+        logger.error(f'txExecutionUtils.py - Error checking for Tx success. Error: {e}', exc_info=True)
+        return None  
 
 def check_tx_success(tx_receipt: TxReceipt) -> bool:
     try:

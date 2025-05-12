@@ -10,8 +10,8 @@ percent_bound = 5
 tick_spacing = 60
 tick_lower, tick_upper = get_tick_range_from_current_tick(current_tick, percent_bound, tick_spacing)
 print(tick_lower, tick_upper)
-amount_usdc = 8 * (10 ** 6)
-amount_eth = 8 / center_price * (10 ** 18)
+amount_usdc = 5 * (10 ** 6)
+amount_eth = 5 / center_price * (10 ** 18)
 
 mint_params = MintParams(
     WETH_ADDRESS,
@@ -44,18 +44,15 @@ class Test:
 
     def provide_liquidity(self, mint_params: MintParams):
         try:
-            print('made it to here 1')
             self.txExecutor.deploy_liquidity(mint_params)
 
         except Exception as e:
             logger.error(f'TxExecution.t.py - Failed to deploy liquidity. Error: {e}', exc_info=True)
 
-print(center_price)
-
 
 x = Test()
-# b = x.provide_liquidity(mint_params)
+b = x.provide_liquidity(mint_params)
 # a = x.txExecutor.get_liquidity(4443760)
 # y = x.txExecutor.remove_liquidity(reduce_params)
-z = x.txExecutor.collect_removed_liquidity(collect_params)
-print(z)
+# z = x.txExecutor.collect_removed_liquidity(collect_params)
+print(b)
