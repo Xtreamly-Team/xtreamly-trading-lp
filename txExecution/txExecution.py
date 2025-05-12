@@ -103,7 +103,7 @@ class TxExecution():
             logger.error(f'txExecution.py - Error while adding liquidity to position. Error: {e}', exc_info=True)
             return None
 
-    def build_0x_transaction(response: ZeroExAPIResponse) -> dict:
+    def build_0x_transaction(response: ZeroExAPIResponse) -> bool:
         try:
             nonce = GLOBAL_ARBITRUM_PROVIDER.eth.get_transaction_count(EXECUTOR_ADDRESS)
 
@@ -122,7 +122,7 @@ class TxExecution():
             if not tx_success:
                 raise Exception
 
-            return tx_receipt
+            return tx_success
         
         except Exception as e:
             logger.error(f'txExecution.py - Error building 0x transaction. Error: {e}', exc_info=True)

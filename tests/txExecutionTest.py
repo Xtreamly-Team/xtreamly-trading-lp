@@ -24,15 +24,9 @@ mint_params = MintParams(
     EXECUTOR_ADDRESS
 )
 
-reduce_params = ReduceParams( 
-    4443760,
-    5825385497971,
-    0,
-    0
-)
 
 collect_params = CollectParams(
-    4443760,
+    4455716,
     EXECUTOR_ADDRESS,
     2**128 - 1,
     2**128 - 1
@@ -51,8 +45,14 @@ class Test:
 
 
 x = Test()
-b = x.provide_liquidity(mint_params)
-# a = x.txExecutor.get_liquidity(4443760)
+# b = x.provide_liquidity(mint_params)
+# a = x.txExecutor.get_liquidity(4455716)
+# reduce_params = ReduceParams( 
+#     4455716,
+#     a,
+#     0,
+#     0
+# )
 # y = x.txExecutor.remove_liquidity(reduce_params)
-# z = x.txExecutor.collect_removed_liquidity(collect_params)
-print(b)
+z = x.txExecutor.collect_removed_liquidity(collect_params)
+print(z)
