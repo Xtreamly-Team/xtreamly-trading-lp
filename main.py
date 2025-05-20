@@ -65,14 +65,22 @@ def _function(
 
 TX_EXECUTOR = TxExecution()
 
+# @app.post("/get-upper-lower-price/") <- Pawel
+
 @app.post("/deploy-liquidity/")
-def deploy_liquidity_endpoint(amount_usdc: float, amount_eth: float):
+def deploy_liquidity_endpoint(
+    # pool_address: str,
+    # price_upper: float,
+    # price_lower: float,
+    amount_usdc: float, 
+    amount_eth: float
+    ):
     try:
         center_price = float(get_price_from_pool(POOL_CONTRACTS.ETH_USDC))
         current_tick = float(get_current_tick(POOL_CONTRACTS.ETH_USDC))
         percent_bound = 5
         tick_spacing = 60
-        tick_lower, tick_upper = get_tick_range_from_current_tick(current_tick, percent_bound, tick_spacing)
+        tick_lower, tick_upper = get_tick_range_from_current_tick(current_tick, percent_bound, tick_spacing) # redefine to price_upper price_lower
         amount_usdc = int(amount_usdc * 10 ** 6)
         amount_eth = amount_usdc / center_price * (10 ** 18)
 
@@ -169,7 +177,7 @@ def swap_tokens(sell_token: str, buy_token: str, sell_amount: int):
         logger.error(f"main.py - API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
 
-# get position amounts
+# get LP position amounts
 # get wallet amounts
 
 if __name__ == "__main__":
