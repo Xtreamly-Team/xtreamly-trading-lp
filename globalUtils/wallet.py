@@ -1,26 +1,22 @@
-import os
 import json
 from web3 import Web3
 from globalUtils.GlobalUtils import USDC_ADDRESS, WETH_ADDRESS
+from globalUtils.web3_utils import get_web3, get_wallet
 
 
 def get_balances(private_key: str = None):
-    private_key = os.getenv("PRIV_KEY") if private_key is None else private_key
+    web3 = get_web3()
+    wallet = get_wallet(private_key).address
 
-    web3 = Web3(Web3.HTTPProvider(os.getenv("ARBITRUM_RPC_URL")))
-
-    account = web3.eth.account.from_key(private_key)
-    wallet_address = account.address
-
-    eth_balance = web3.eth.get_balance(wallet_address)
+    eth_balance = web3.eth.get_balance(wallet)
     eth_balance_eth = web3.from_wei(eth_balance, 'ether')
 
     erc20_abi = json.load(open('./globalUtils/ABIs/USDC.json'))
 
     return {
         "ETH": float(eth_balance_eth),
-        "USDC": _get_token_balance(USDC_ADDRESS, erc20_abi, wallet_address, web3),
-        "WETH": _get_token_balance(WETH_ADDRESS, erc20_abi, wallet_address, web3),
+        "USDC": _get_token_balance(USDC_ADDRESS, erc20_abi, wallet, web3),
+        "WETH": _get_token_balance(WETH_ADDRESS, erc20_abi, wallet, web3),
     }
 
 
