@@ -123,51 +123,54 @@ def reduce_liquidity(token_id: int, percentage_to_remove: int):
         logger.error(f"main.py - API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
 
-# @app.post("/collect/")
-# def collect_liquidity(token_id: int):
-#     try:
-#         collect_params = CollectParams( 
-#             token_id,
-#             EXECUTOR_ADDRESS,
-#             2**128 - 1,
-#             2**128 - 1
-#         )
-#         tx_success = TX_EXECUTOR.collect_removed_liquidity(collect_params)
+@app.post("/collect/")
+def collect_liquidity(token_id: int):
+    try:
+        collect_params = CollectParams( 
+            token_id,
+            EXECUTOR_ADDRESS,
+            2**128 - 1,
+            2**128 - 1
+        )
+        tx_success = TX_EXECUTOR.collect_removed_liquidity(collect_params)
 
-#         if not tx_success:
-#             raise HTTPException(status_code=500, detail="Failed to collect removed liquidity.")
+        if not tx_success:
+            raise HTTPException(status_code=500, detail="Failed to collect removed liquidity.")
 
-#         return JSONResponse(content={
-#             "success": True,
-#             "tx_result": tx_success
-#         })
+        return JSONResponse(content={
+            "success": True,
+            "tx_result": tx_success
+        })
 
-#     except Exception as e:
-#         logger.error(f"main.py - API error: {e}", exc_info=True)
-#         raise HTTPException(status_code=500, detail="Internal server error.")
+    except Exception as e:
+        logger.error(f"main.py - API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")
 
-# @app.post("/swap-tokens/")
-# def swap_tokens(sell_token: str, buy_token: str, sell_amount: int):
-#     try:
-#         quote_details = QuoteDetails(
-#             sell_token,
-#             buy_token,
-#             str(sell_amount)
-#         )
-#         quote = get_0x_api_quote(quote_details)
-#         tx_success = TX_EXECUTOR.build_0x_transaction(quote)
+@app.post("/swap-tokens/")
+def swap_tokens(sell_token: str, buy_token: str, sell_amount: int):
+    try:
+        quote_details = QuoteDetails(
+            sell_token,
+            buy_token,
+            str(sell_amount)
+        )
+        quote = get_0x_api_quote(quote_details)
+        tx_success = TX_EXECUTOR.build_0x_transaction(quote)
 
-#         if not tx_success:
-#             raise HTTPException(status_code=500, detail="Token swap failed.")
+        if not tx_success:
+            raise HTTPException(status_code=500, detail="Token swap failed.")
 
-#         return JSONResponse(content={
-#             "success": True,
-#             "tx_result": tx_success
-#         })
+        return JSONResponse(content={
+            "success": True,
+            "tx_result": tx_success
+        })
 
-#     except Exception as e:
-#         logger.error(f"main.py - API error: {e}", exc_info=True)
-#         raise HTTPException(status_code=500, detail="Internal server error.")
+    except Exception as e:
+        logger.error(f"main.py - API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")
+
+# get position amounts
+# get wallet amounts
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))
