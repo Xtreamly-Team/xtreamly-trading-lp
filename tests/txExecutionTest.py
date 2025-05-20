@@ -1,8 +1,8 @@
-from xtreamly_trading_lp.globalUtils.GlobalUtils import *
-from xtreamly_trading_lp.txExecution.txExecutionUtils import *
-from xtreamly_trading_lp.txExecution.txExecution import *
-from xtreamly_trading_lp.globalUtils.getPriceFromChainlink import *
-from xtreamly_trading_lp.globalUtils.getPriceFromPool import *
+from globalUtils.GlobalUtils import *
+from txExecution.txExecutionUtils import *
+from txExecution.txExecution import *
+from globalUtils.getPriceFromChainlink import *
+from globalUtils.getPriceFromPool import *
 
 center_price = float(get_price_from_pool(POOL_CONTRACTS.ETH_USDC))
 current_tick = float(get_current_tick(POOL_CONTRACTS.ETH_USDC))

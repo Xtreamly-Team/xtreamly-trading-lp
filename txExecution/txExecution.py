@@ -1,5 +1,5 @@
-from xtreamly_trading_lp.globalUtils.GlobalUtils import *
-from xtreamly_trading_lp.txExecution.txExecutionUtils import *
+from globalUtils.GlobalUtils import *
+from txExecution.txExecutionUtils import *
 
 class TxExecution():
     def __init__(self):

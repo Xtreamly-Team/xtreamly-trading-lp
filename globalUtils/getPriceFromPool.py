@@ -1,6 +1,6 @@
 from decimal import Decimal
 from web3 import Web3
-from xtreamly_trading_lp.globalUtils.GlobalUtils import *
+from globalUtils.GlobalUtils import *
 
 ETH_USDC_5BPS = '0xC6962004f452bE9203591991D15f6b388e09E8D0'
 ETH_USDT_5BPS = '0x641c00a822e8b671738d32a431a4fb6074e5c79d'

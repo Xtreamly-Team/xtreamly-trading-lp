@@ -1,5 +1,5 @@
 import os
-from xtreamly_trading_lp.globalUtils.GlobalUtils import *
+from globalUtils.GlobalUtils import *
 import time
 from web3.types import TxReceipt
 from uniswappy import *

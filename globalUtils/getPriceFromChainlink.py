@@ -1,5 +1,5 @@
 from web3 import Web3
-from xtreamly_trading_lp.globalUtils.GlobalUtils import *
+from globalUtils.GlobalUtils import *
 
 CHAINLINK_AGGREGATOR_ABI = [
     {

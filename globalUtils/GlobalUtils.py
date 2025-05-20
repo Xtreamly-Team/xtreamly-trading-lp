@@ -19,23 +19,23 @@ USDC_ADDRESS = '0xaf88d065e77c8cC2239327C5EDb3A432268e5831'
 
 ETH_USDC_3BPS_ADDR = '0xC1A31dC7Bc2e06aA0228D2Ea58dF4F92C3A16998'
 
-with open('xtreamly_trading_lp/globalUtils/ABIs/NonFungiblePositionManager.json', 'r') as f:
+# xtreamly_trading_lp/
+with open('globalUtils/ABIs/NonFungiblePositionManager.json', 'r') as f:
     NFPM_abi = json.load(f)
 
-with open('xtreamly_trading_lp/globalUtils/ABIs/WETH.json', 'r') as f:
+with open('globalUtils/ABIs/WETH.json', 'r') as f:
     weth_abi = json.load(f)
 
-with open('xtreamly_trading_lp/globalUtils/ABIs/WBTC.json', 'r') as f:
+with open('globalUtils/ABIs/WBTC.json', 'r') as f:
     wbtc_abi = json.load(f)
 
-with open('xtreamly_trading_lp/globalUtils/ABIs/USDC.json', 'r') as f:
+with open('globalUtils/ABIs/USDC.json', 'r') as f:
     usdc_abi = json.load(f)
 
 NFPM_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(NON_FUNGIBLE_POSITION_MANAGER_ADDRESS), abi=NFPM_abi)
 WETH_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(WETH_ADDRESS), abi=weth_abi)
 WBTC_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(WBTC_ADDRESS), abi=wbtc_abi)
 USDC_CONTRACT = GLOBAL_ARBITRUM_PROVIDER.eth.contract(address=GLOBAL_ARBITRUM_PROVIDER.to_checksum_address(USDC_ADDRESS), abi=usdc_abi)
-
 
 class Contracts:
     def __init__(self):
