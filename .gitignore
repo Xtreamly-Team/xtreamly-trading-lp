@@ -10,5 +10,3 @@ globalUtils/database/xtreamly-ai-3bdeeea870af-bigquery-read-only.json
 .DS_Store
 .idea/
 venv/
-
-__pycache__
