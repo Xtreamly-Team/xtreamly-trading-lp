@@ -70,10 +70,10 @@ TX_EXECUTOR = TxExecution()
 @app.post("/deploy-liquidity/")
 def deploy_liquidity_endpoint(
     # pool_address: str,
-    # price_upper: float,
-    # price_lower: float,
-    amount_usdc: float, 
-    amount_eth: float
+    amount_usdc: float,
+    price_lower: float = None,
+    price_upper: float = None,
+    # amount_eth: float
     ):
     try:
         center_price = float(get_price_from_pool(POOL_CONTRACTS.ETH_USDC))
@@ -81,6 +81,13 @@ def deploy_liquidity_endpoint(
         percent_bound = 5
         tick_spacing = 60
         tick_lower, tick_upper = get_tick_range_from_current_tick(current_tick, percent_bound, tick_spacing) # redefine to price_upper price_lower
+
+        if price_lower is not None:
+            tick_lower = get_tick_from_price(price_lower, 60)
+
+        if price_upper is not None:
+            tick_upper = get_tick_from_price(price_upper, 60)
+
         amount_usdc = int(amount_usdc * 10 ** 6)
         amount_eth = amount_usdc / center_price * (10 ** 18)
 

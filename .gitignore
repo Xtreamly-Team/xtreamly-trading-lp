@@ -12,3 +12,4 @@ globalUtils/database/xtreamly-ai-3bdeeea870af-bigquery-read-only.json
 venv/
 
 __pycache__
+*.log

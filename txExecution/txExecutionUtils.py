@@ -20,6 +20,11 @@ TRANSFER_EVENT_ABI = {
 }
 
 
+def align_tick(tick: int, spacing: int) -> int:
+    aligned = tick - (tick % spacing)
+    return aligned
+
+
 def get_tick_range_from_current_tick(current_tick: int, percent_bound: int, tick_spacing: int) -> tuple:
     if percent_bound <= 0:
         raise ValueError("percent_bound must be greater than 0")
@@ -30,15 +35,21 @@ def get_tick_range_from_current_tick(current_tick: int, percent_bound: int, tick
     tick_lower = current_tick - bound_in_ticks
     tick_upper = current_tick + bound_in_ticks
 
-    def align_tick(tick: int, spacing: int) -> int:
-        aligned = tick - (tick % spacing)
-        return aligned
-
     tick_lower_aligned = align_tick(tick_lower, tick_spacing)
     tick_upper_aligned = align_tick(tick_upper, tick_spacing)
 
     return int(tick_lower_aligned), int(tick_upper_aligned)
 
+
+def get_tick_from_price(
+    price: float,
+    tick_spacing: int = 60,
+    token_0_decimals: int = 6,
+    token_1_decimals: int = 18,
+) -> int:
+    price = price / (10 ** token_1_decimals / 10 ** token_0_decimals)
+    raw_tick = math.log(price) / math.log(1.0001)
+    return int(raw_tick // tick_spacing * tick_spacing)
 
 
 class MintParams():
