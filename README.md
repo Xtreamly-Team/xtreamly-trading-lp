@@ -91,3 +91,9 @@ Access the API in your browser or API testing tool at:
    ```
    http://localhost:8080
    ```
+
+## 🚀 Execute tests
+
+   ```bash
+   python -m tests.position_management 
+   ```
