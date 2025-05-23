@@ -200,3 +200,7 @@ class UniswapV3Lp:
                 logger.info(f"Collected liquidity from position {token_id}.")
             else:
                 logger.error(f"Unable to collect liquidity from position {token_id}.")
+
+    def reduce_and_collect_all_liquidity(self):
+        for pos in self.get_positions():
+            self.reduce_and_collect_liquidity(pos["tokenId"])
