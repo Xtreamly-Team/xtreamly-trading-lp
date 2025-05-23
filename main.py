@@ -118,7 +118,7 @@ def get_open_positions(
 @app.post("/reduce-liquidity/")
 def reduce_liquidity(
     token_id: int,
-    percentage_to_remove: int,
+    percentage_to_remove: int = 100,
     token0: str = "WETH",
     token1: str = "USDC",
     fee: str = "0.3%"
@@ -126,22 +126,6 @@ def reduce_liquidity(
     try:
         ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
         result = ulp.reduce_and_collect_liquidity(token_id, percentage_to_remove)
-        return JSONResponse(content={"success": result})
-    except Exception as e:
-        logger.error(f"API error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error.")
-
-
-@app.post("/collect/")
-def collect_liquidity(
-    token_id: int,
-    token0: str = "WETH",
-    token1: str = "USDC",
-    fee: str = "0.3%"
-):
-    try:
-        ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
-        result = ulp.collect_liquidity(token_id)
         return JSONResponse(content={"success": result})
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)

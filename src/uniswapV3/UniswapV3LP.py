@@ -188,10 +188,13 @@ class UniswapV3Lp:
             logger.info(f"Removed liquidity from position {token_id}.")
             if self.collect_liquidity(token_id):
                 logger.info(f"Collected liquidity from position {token_id}.")
+                return True
             else:
                 logger.error(f"Unable to collect liquidity from position {token_id}.")
+                return False
         else:
             logger.error(f"Unable to remove liquidity from position {token_id}.")
+            return False
 
     def collect_all_liquidity(self):
         for pos in self.get_positions():
