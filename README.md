@@ -84,9 +84,15 @@ Follow these steps to set up your development environment using Anaconda:
 Your Anaconda environment is now set up, and you can proceed to run or develop the application.
 
 
-## 🚀 Usage
+## 🚀 Run the server locally
+
+```bash
+fastapi dev ./main.py
+```
 
 Access the API in your browser or API testing tool at:
+
+
 
    ```
    http://localhost:8080

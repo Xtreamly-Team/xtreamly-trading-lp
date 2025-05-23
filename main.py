@@ -84,6 +84,28 @@ def deploy_liquidity_endpoint(
         raise HTTPException(status_code=500, detail="Internal server error.")
 
 
+@app.get("/positions/")
+def get_positions():
+    try:
+        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        result = ulp.get_positions()
+        return JSONResponse(content={"success": result})
+    except Exception as e:
+        logger.error(f"API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")
+
+
+@app.get("/open-positions/")
+def get_positions():
+    try:
+        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        result = ulp.get_open_positions()
+        return JSONResponse(content={"success": result})
+    except Exception as e:
+        logger.error(f"API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")
+
+
 @app.post("/reduce-liquidity/")
 def reduce_liquidity(token_id: int, percentage_to_remove: int):
     try:

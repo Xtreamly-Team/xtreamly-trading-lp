@@ -7,6 +7,8 @@ balances = get_balances()
 print(balances)
 
 p = UniswapV3Lp(WETH, USDC, "0.3%")
+p = p.get_positions()
+print(p)
 # p = p.deploy_liquidity(1, 2500, 3600)
 # p = p.reduce_and_collect_liquidity()
 

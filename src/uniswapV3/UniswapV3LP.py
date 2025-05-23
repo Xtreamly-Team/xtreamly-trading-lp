@@ -64,6 +64,14 @@ class UniswapV3Lp:
                 "token1"].lower() == self.token1.address.lower() and p["fee"] == self.pool.fees
         ]
 
+    def get_open_positions(self):
+        positions = self.get_positions()
+        return [p for p in positions if p["liquidity"] > 0]
+
+    def get_all_open_positions(self):
+        positions = self.get_all_positions()
+        return [p for p in positions if p["liquidity"] > 0]
+
     def _get_tx_params(self):
         return {
             'from': self.wallet.address,
