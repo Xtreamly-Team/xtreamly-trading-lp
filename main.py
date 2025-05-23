@@ -8,9 +8,9 @@ from run_copytrading import _run_copytrading
 from settings.gmail import _send_user_email
 from logging import getLogger
 from src.uniswapV3 import UniswapV3Lp
-from src.tokens import WETH, USDC
-from src.swap import Swap
 from src.tokens import TOKENS
+from src.swap import Swap
+from src.wallet import get_balances
 
 logger = getLogger(__name__)
 
@@ -71,12 +71,15 @@ def _function(
 
 @app.post("/deploy-liquidity/")
 def deploy_liquidity_endpoint(
-        amount_usdc: float,
-        price_lower: float = None,
-        price_upper: float = None,
+    amount_usdc: float,
+    price_lower: float = None,
+    price_upper: float = None,
+    token0: str = "WETH",
+    token1: str = "USDC",
+    fee: str = "0.3%"
 ):
     try:
-        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
         result = ulp.deploy_liquidity(amount_usdc, price_lower, price_upper)
         return JSONResponse(content={"success": result})
     except Exception as e:
@@ -85,9 +88,13 @@ def deploy_liquidity_endpoint(
 
 
 @app.get("/positions/")
-def get_positions():
+def get_positions(
+    token0: str = "WETH",
+    token1: str = "USDC",
+    fee: str = "0.3%"
+):
     try:
-        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
         result = ulp.get_positions()
         return JSONResponse(content={"success": result})
     except Exception as e:
@@ -96,9 +103,13 @@ def get_positions():
 
 
 @app.get("/open-positions/")
-def get_positions():
+def get_open_positions(
+    token0: str = "WETH",
+    token1: str = "USDC",
+    fee: str = "0.3%"
+):
     try:
-        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
         result = ulp.get_open_positions()
         return JSONResponse(content={"success": result})
     except Exception as e:
@@ -107,9 +118,15 @@ def get_positions():
 
 
 @app.post("/reduce-liquidity/")
-def reduce_liquidity(token_id: int, percentage_to_remove: int):
+def reduce_liquidity(
+    token_id: int,
+    percentage_to_remove: int,
+    token0: str = "WETH",
+    token1: str = "USDC",
+    fee: str = "0.3%"
+):
     try:
-        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
         result = ulp.reduce_and_collect_liquidity(token_id, percentage_to_remove)
         return JSONResponse(content={"success": result})
     except Exception as e:
@@ -118,9 +135,14 @@ def reduce_liquidity(token_id: int, percentage_to_remove: int):
 
 
 @app.post("/collect/")
-def collect_liquidity(token_id: int):
+def collect_liquidity(
+    token_id: int,
+    token0: str = "WETH",
+    token1: str = "USDC",
+    fee: str = "0.3%"
+):
     try:
-        ulp = UniswapV3Lp(WETH, USDC, "0.3%")
+        ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
         result = ulp.collect_liquidity(token_id)
         return JSONResponse(content={"success": result})
     except Exception as e:
@@ -134,6 +156,15 @@ def swap_tokens(sell_token: str, buy_token: str, sell_amount: float):
         swap = Swap()
         result = swap.swap(TOKENS[sell_token], TOKENS[buy_token], sell_amount)
         return JSONResponse(content={"success": result})
+    except Exception as e:
+        logger.error(f"API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")
+
+
+@app.get("/wallet-balances/")
+def wallet_balances():
+    try:
+        return JSONResponse(content={"success": get_balances()})
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
