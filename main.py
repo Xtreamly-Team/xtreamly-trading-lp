@@ -95,8 +95,7 @@ def get_positions(
 ):
     try:
         ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
-        result = ulp.get_positions()
-        return JSONResponse(content={"success": result})
+        return JSONResponse(content= ulp.get_positions())
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
@@ -110,8 +109,7 @@ def get_open_positions(
 ):
     try:
         ulp = UniswapV3Lp(TOKENS[token0], TOKENS[token1], fee)
-        result = ulp.get_open_positions()
-        return JSONResponse(content={"success": result})
+        return JSONResponse(content=ulp.get_open_positions())
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
@@ -164,7 +162,7 @@ def swap_tokens(sell_token: str, buy_token: str, sell_amount: float):
 @app.get("/wallet-balances/")
 def wallet_balances():
     try:
-        return JSONResponse(content={"success": get_balances()})
+        return JSONResponse(content=get_balances())
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
