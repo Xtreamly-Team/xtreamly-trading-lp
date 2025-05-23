@@ -11,6 +11,7 @@ from src.uniswapV3 import UniswapV3Lp
 from src.tokens import TOKENS
 from src.swap import Swap
 from src.wallet import get_balances
+from src.xtreamly import VolatilityAPI, Symbols
 
 logger = getLogger(__name__)
 
@@ -147,6 +148,18 @@ def swap_tokens(sell_token: str, buy_token: str, sell_amount: float):
 def wallet_balances():
     try:
         return JSONResponse(content=get_balances())
+    except Exception as e:
+        logger.error(f"API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")
+
+
+@app.get("/volatility-status/")
+def volatility_status(
+    symbol: Symbols = Symbols.ETH
+):
+    try:
+        api = VolatilityAPI()
+        return JSONResponse(content=api.state(symbol))
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
