@@ -4,7 +4,6 @@ from uvicorn import run
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from run_copytrading import _run_copytrading
 from settings.gmail import _send_user_email
 from logging import getLogger
 from src.uniswapV3 import UniswapV3Lp
@@ -12,6 +11,8 @@ from src.tokens import TOKENS
 from src.swap import Swap
 from src.wallet import get_balances
 from src.xtreamly import VolatilityAPI, Symbols
+from run_copytrading import _copytrading
+from run_rebalancing import _rebalancing
 
 logger = getLogger(__name__)
 
@@ -59,7 +60,7 @@ def _function(
         freq=1440 * 1
 ):
     success = 'empty'
-    df_opn, df_cls = _run_copytrading(int(freq))
+    df_opn, df_cls = _copytrading(int(freq))
     if len(df_opn) or len(df_cls):
         email_receiver_list = emails.split(';')
         success = _send_user_email(email_receiver_list, df_opn, df_cls)
@@ -69,6 +70,16 @@ def _function(
         'close': json.loads(df_cls.to_json(orient='records')),
     })
 
+@app.get("/rebalancing/")
+def rebalancing_function(
+    benchmark_vol: str = "ETH",
+    horizon: str = "1440min",
+    token0: str = "WETH",
+    token1: str = "USDC",
+    fee: str = "0.3%"     
+):
+    result = _rebalancing(benchmark_vol, horizon, token0, token1, fee)
+    return JSONResponse(content={'success': result})
 
 @app.post("/deploy-liquidity/")
 def deploy_liquidity_endpoint(
