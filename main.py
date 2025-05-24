@@ -163,6 +163,19 @@ def volatility_status(
     except Exception as e:
         logger.error(f"API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error.")
+    
+
+@app.get("/volatility-prediction/")
+def volatility_prediction(
+    horizon: str = "1440min",
+    symbol: Symbols = Symbols.ETH
+):
+    try:
+        api = VolatilityAPI()
+        return JSONResponse(content=api.prediction(horizon, symbol))
+    except Exception as e:
+        logger.error(f"API error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error.")    
 
 
 if __name__ == "__main__":
