@@ -6,7 +6,6 @@ from uvicorn import run
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from run_copytrading import _run_copytrading
 from settings.gmail import _send_user_email
 from logging import getLogger
 from src.uniswapV3 import UniswapV3Lp
